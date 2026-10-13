@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SNOW — 3D Artist</title>
+  <meta name="description" content="SNOW — 3D artist portfolio, modeling and asset creation.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#070707;
+      --panel:#101010;
+      --text:#f2f2f2;
+      --muted:#929292;
+      --line:#252525;
+      --accent:#fff;
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;background:var(--bg);color:var(--text);
+      font-family:Inter,system-ui,sans-serif;overflow-x:hidden;
+    }
+    a{color:inherit;text-decoration:none}
+    #snowfall{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:15;display:block}
+    @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+    .noise{position:fixed;inset:0;pointer-events:none;opacity:.035;z-index:20;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E")}
+    nav{
+      position:fixed;top:0;left:0;right:0;z-index:10;
+      display:flex;justify-content:space-between;align-items:center;
+      padding:25px 5vw;mix-blend-mode:difference;
+    }
+    .logo{font-family:"Space Grotesk";font-weight:700;letter-spacing:.18em;font-size:14px}
+    nav .links{display:flex;gap:30px;font-size:12px;text-transform:uppercase;letter-spacing:.12em}
+    nav .links a{opacity:.72;transition:.25s}
+    nav .links a:hover{opacity:1}
+    .hero{
+      min-height:100vh;display:grid;grid-template-columns:42% 58%;
+      align-items:center;padding:110px 5vw 70px;gap:2vw;
+    }
+    .hero-copy{position:relative;z-index:2}
+    .eyebrow{font-size:11px;letter-spacing:.22em;color:var(--muted);margin-bottom:24px;text-transform:uppercase}
+    h1{
+      font-family:"Space Grotesk";font-size:clamp(58px,8vw,132px);
+      line-height:.86;letter-spacing:-.07em;margin:0 0 30px;font-weight:600;
+    }
+    .hero-copy p{max-width:410px;color:#aaa;font-size:15px;line-height:1.7;margin:0}
+    .hero-art{
+      height:min(78vh,850px);position:relative;display:flex;align-items:center;justify-content:center;
+      perspective:1200px;
+    }
+    .hero-frame{
+      width:min(100%,760px);height:100%;border:1px solid #2a2a2a;border-radius:32px;
+      overflow:hidden;background:#111;transform:rotateY(-3deg) rotateX(1deg);
+      transition:transform .25s ease-out;box-shadow:0 30px 100px rgba(0,0,0,.45);
+    }
+    .hero-frame img{width:100%;height:100%;object-fit:contain;display:block;background:#111}
+    section{padding:120px 5vw}
+    .section-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:42px;border-bottom:1px solid var(--line);padding-bottom:20px}
+    .section-title{font-family:"Space Grotesk";font-size:clamp(42px,6vw,92px);letter-spacing:-.06em;margin:0;font-weight:500}
+    .count{font-size:11px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase}
+    .work-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+    .project{
+      position:relative;overflow:hidden;border-radius:var(--radius);background:var(--panel);
+      border:1px solid var(--line);min-height:520px;opacity:0;transform:translateY(35px);
+      transition:opacity .7s ease,transform .7s ease;
+    }
+    .project.revealed{opacity:1;transform:none}
+    .project:nth-child(3){grid-column:1 / -1;min-height:650px}
+    .project img,.project video{width:100%;height:100%;min-height:inherit;object-fit:cover;display:block;transition:transform .7s cubic-bezier(.2,.8,.2,1);filter:saturate(.92)}
+    .project video{background:#050505;object-fit:contain}
+    .project:hover img{transform:scale(1.035)}
+    .project-info{
+      position:absolute;left:0;right:0;bottom:0;padding:28px;
+      background:linear-gradient(transparent,rgba(0,0,0,.88));padding-top:110px;
+      display:flex;justify-content:space-between;align-items:end;
+    }
+    .project-name{font-family:"Space Grotesk";font-size:30px;letter-spacing:-.04em}
+    .project-type{font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:.14em}
+
+    .extra-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+    .extra-card{position:relative;overflow:hidden;border-radius:var(--radius);background:var(--panel);border:1px solid var(--line);min-height:360px;opacity:0;transform:translateY(35px);transition:opacity .7s ease,transform .7s ease}
+    .extra-card.revealed{opacity:1;transform:none}
+    .extra-card img,.extra-card video{width:100%;height:100%;min-height:360px;object-fit:cover;display:block;transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+    .extra-card:hover img{transform:scale(1.025)}
+    .video-card video{background:#050505;object-fit:contain}
+    .extra-label{position:absolute;left:0;right:0;bottom:0;padding:45px 22px 20px;background:linear-gradient(transparent,rgba(0,0,0,.9));font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#eee}
+    @media(max-width:800px){.extra-grid{grid-template-columns:1fr}.extra-card,.extra-card img,.extra-card video{min-height:420px}}
+    .about{
+      display:grid;grid-template-columns:1fr 1fr;gap:8vw;align-items:start;
+      border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    }
+    .about p{font-size:clamp(22px,3vw,40px);line-height:1.25;letter-spacing:-.035em;margin:0}
+    .about .small{font-size:14px;line-height:1.8;color:#999;max-width:430px}
+    .contact{min-height:70vh;display:flex;flex-direction:column;justify-content:space-between}
+    .contact h2{font-family:"Space Grotesk";font-size:clamp(70px,13vw,190px);line-height:.82;letter-spacing:-.08em;margin:0}
+    .contact-bottom{display:flex;justify-content:space-between;align-items:end;border-top:1px solid var(--line);padding-top:25px}
+    .email{font-size:clamp(18px,2vw,26px)}
+
+    .contact-links{display:flex;flex-direction:column;gap:18px}
+    .social-link{display:flex;align-items:center;gap:14px;font-size:clamp(16px,1.8vw,22px);transition:transform .25s ease,opacity .25s ease}
+    .social-link:hover{transform:translateX(7px);opacity:.72}
+    .social-icon{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;color:#fff;flex:0 0 28px}
+    .social-icon svg{width:24px;height:24px;fill:currentColor}
+    .email-icon{border:1px solid #666;border-radius:50%;font-size:14px;font-weight:600}
+    .footer{padding:25px 5vw;display:flex;justify-content:space-between;color:#666;font-size:10px;text-transform:uppercase;letter-spacing:.15em;border-top:1px solid var(--line)}
+    @media(max-width:800px){
+      nav{padding:20px 6vw}.links{gap:16px!important}.hero{grid-template-columns:1fr;padding-top:100px}.hero-copy{padding:35px 0 10px}.hero-art{height:65vh;order:-1}
+      section{padding:80px 6vw}.work-grid{grid-template-columns:1fr}.project,.project:nth-child(3){grid-column:auto;min-height:480px}
+  
+    .extra-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+    .extra-card{position:relative;overflow:hidden;border-radius:var(--radius);background:var(--panel);border:1px solid var(--line);min-height:360px;opacity:0;transform:translateY(35px);transition:opacity .7s ease,transform .7s ease}
+    .extra-card.revealed{opacity:1;transform:none}
+    .extra-card img,.extra-card video{width:100%;height:100%;min-height:360px;object-fit:cover;display:block;transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+    .extra-card:hover img{transform:scale(1.025)}
+    .video-card video{background:#050505;object-fit:contain}
+    .extra-label{position:absolute;left:0;right:0;bottom:0;padding:45px 22px 20px;background:linear-gradient(transparent,rgba(0,0,0,.9));font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#eee}
+    @media(max-width:800px){.extra-grid{grid-template-columns:1fr}.extra-card,.extra-card img,.extra-card video{min-height:420px}}
+    .about{grid-template-columns:1fr;gap:35px}.contact{min-height:65vh}.contact-bottom{align-items:start;gap:20px;flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+<canvas id="snowfall" aria-hidden="true"></canvas>
+<div class="noise"></div>
+<nav>
+  <a class="logo" href="#">SNOW</a>
+  <div class="links">
+    <a href="#work">Work</a>
+    <a href="#extras">Extras</a>
+    <a href="#contact">Contacts</a>
+  </div>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow">3D Artist / Modeling / Asset Creation</div>
+      <h1>BUILDING<br>WORLDS<br>IN 3D.</h1>
+      <p>Character models, digital sculptures and 3D assets built with a focus on strong silhouettes, detail and personality.</p>
+    </div>
+    <div class="hero-art" id="heroArt">
+      <div class="hero-frame" id="heroFrame">
+        <img src="assets/digital-sculpture.webp" alt="Split-color digital sculpture">
+      </div>
+    </div>
+  </section>
+
+  <section id="work">
+    <div class="section-head">
+      <h2 class="section-title">My Work</h2>
+      <span class="count">06 Renders</span>
+    </div>
+    <div class="work-grid">
+      <article class="project"><video controls preload="metadata" playsinline aria-label="Sculpture animation"><source src="assets/sculpture-render.mp4" type="video/mp4">Your browser does not support HTML5 video.</video><div class="project-info"><div><div class="project-name">SCULPTURE</div><div class="project-type">DIGITAL SCULPTURE / CHARACTER ART</div></div><span>01</span></div></article>
+      <article class="project"><img src="assets/nc.webp" alt="NC 3D render"><div class="project-info"><div><div class="project-name">MARVEL RIVALS NIGHTCRAWLER</div><div class="project-type">MARVEL RIVALS / CHARACTER RENDER</div></div><span>02</span></div></article>
+      <article class="project"><img src="assets/emma.webp" alt="Emma 3D render"><div class="project-info"><div><div class="project-name">ORIGINAL CHARACTER: EMMANUEL</div><div class="project-type">ORIGINAL CHARACTER / RENDER</div></div><span>03</span></div></article>
+      <article class="project"><img src="assets/oldman.webp" alt="Oldman 3D render"><div class="project-info"><div><div class="project-name">THE NIGHT KEEPERS — PSYCHIATRIC PATIENT</div><div class="project-type">GAME DEVELOPMENT / CHARACTER</div></div><span>04</span></div></article>
+      <article class="project"><img src="assets/dd.webp" alt="DD 3D render"><div class="project-info"><div><div class="project-name">MARVEL RIVALS DR. DOOM</div><div class="project-type">MARVEL RIVALS / CHARACTER RENDER</div></div><span>05</span></div></article>
+      <article class="project"><img src="assets/freya.webp" alt="Freya 3D render"><div class="project-info"><div><div class="project-name">ORIGINAL CHARACTER: FREYA</div><div class="project-type">ORIGINAL CHARACTER / RENDER</div></div><span>06</span></div></article>
+    </div>
+  </section>
+
+
+  <section id="extras">
+    <div class="section-head">
+      <h2 class="section-title">Extra Renders &amp; Animations</h2>
+      <span class="count">05 Pieces</span>
+    </div>
+    <div class="extra-grid">
+      <article class="extra-card"><img src="assets/extra-freya-1.webp" alt="Freya extra render"><div class="extra-label">FREYA — EXTRA RENDER</div></article>
+      <article class="extra-card"><img src="assets/extra-freya-2.webp" alt="Freya second extra render"><div class="extra-label">FREYA — DETAIL</div></article>
+      <article class="extra-card"><img src="assets/extra-emma-poses.webp" alt="Emma poses"><div class="extra-label">EMMA — POSES</div></article>
+      <article class="extra-card"><img src="assets/extra-emma-square.webp" alt="Emma extra render"><div class="extra-label">EMMA — EXTRA RENDER</div></article>
+      <article class="extra-card video-card"><video controls preload="metadata" playsinline><source src="assets/extra-animation-02.mp4" type="video/mp4">Your browser does not support HTML5 video.</video><div class="extra-label">ANIMATION — 02</div></article>
+    </div>
+  </section>
+
+  <section class="about">
+    <p>Turning ideas into stylized 3D characters, sculptures and assets.</p>
+    <p class="small">A portfolio focused on modeling and digital art. Browse the renders above to explore the work.</p>
+  </section>
+
+  <section class="contact" id="contact">
+    <div>
+      <div class="eyebrow">Get in touch</div>
+      <h2>Contacts</h2>
+    </div>
+    <div class="contact-bottom">
+      <div class="contact-links">
+        <a class="social-link" href="mailto:zaiobuks@gmail.com" aria-label="Email SNOW">
+          <span class="social-icon email-icon">@</span>
+          <span>zaiobuks@gmail.com</span>
+        </a>
+        <a class="social-link" href="https://www.tiktok.com/@snow_fall08" target="_blank" rel="noopener noreferrer" aria-label="TikTok @snow_fall08">
+          <span class="social-icon tiktok-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img"><path d="M15.2 3c.4 2.4 1.8 3.9 4.2 4.1v3.1c-1.6 0-3-.5-4.2-1.3v7.2c0 4-2.8 6.4-6.5 6.4-3.4 0-5.7-2.4-5.7-5.4 0-3.4 2.7-5.7 6.2-5.7.3 0 .7 0 1 .1v3.2c-.3-.1-.6-.2-1-.2-1.4 0-2.6.9-2.6 2.4 0 1.3 1 2.4 2.3 2.4 1.7 0 2.9-1.1 2.9-3.2V3h3.4z"/></svg>
+          </span>
+          <span>@snow_fall08</span>
+        </a>
+        <a class="social-link" href="https://www.instagram.com/snowy_fll?stkn=ejF3NzE4a3FlMDk1" target="_blank" rel="noopener noreferrer" aria-label="Instagram snowy_fll">
+          <span class="social-icon instagram-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2.5A2.5 2.5 0 0 0 4.5 7v10A2.5 2.5 0 0 0 7 19.5h10a2.5 2.5 0 0 0 2.5-2.5V7A2.5 2.5 0 0 0 17 4.5H7zm5 3.2A4.3 4.3 0 1 1 7.7 12 4.3 4.3 0 0 1 12 7.7zm0 2.5A1.8 1.8 0 1 0 13.8 12 1.8 1.8 0 0 0 12 10.2zm5-3.1a1 1 0 1 1-1 1 1 1 0 0 1 1-1z"/></svg>
+          </span>
+          <span>snowy_fll</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <span>SNOW © 2026</span>
+  <span>3D Artist</span>
+</footer>
+
+<script>
+  const frame = document.getElementById('heroFrame');
+  const hero = document.getElementById('heroArt');
+  hero.addEventListener('mousemove', e => {
+    const r = hero.getBoundingClientRect();
+    const x = (e.clientX-r.left)/r.width-.5;
+    const y = (e.clientY-r.top)/r.height-.5;
+    frame.style.transform = `rotateY(${x*7-3}deg) rotateX(${-y*5+1}deg) translateY(${y*-5}px)`;
+  });
+  hero.addEventListener('mouseleave', () => frame.style.transform='rotateY(-3deg) rotateX(1deg)');
+  const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('revealed') }), {threshold:.12});
+  document.querySelectorAll('.project, .extra-card').forEach(p => obs.observe(p));
+
+  // Subtle, full-page snowfall. The canvas never intercepts clicks or scrolling.
+  (() => {
+    const canvas = document.getElementById('snowfall');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const flakes = [];
+    let width = 0, height = 0, raf = 0, lastTime = 0;
+    const countForWidth = () => Math.min(105, Math.max(36, Math.round(width / 13)));
+    const random = (min, max) => Math.random() * (max - min) + min;
+    function makeFlake(initial = false) {
+      return {
+        x: random(0, width),
+        y: initial ? random(0, height) : random(-24, -4),
+        radius: random(0.7, 2.2),
+        speed: random(18, 52),
+        drift: random(5, 17),
+        phase: random(0, Math.PI * 2),
+        alpha: random(0.25, 0.75)
+      };
+    }
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const target = countForWidth();
+      while (flakes.length < target) flakes.push(makeFlake(true));
+      if (flakes.length > target) flakes.length = target;
+      draw();
+    }
+    function draw() {
+      ctx.clearRect(0, 0, width, height);
+      for (const f of flakes) {
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(255,255,255,${f.alpha})`;
+        ctx.arc(f.x, f.y, f.radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    function tick(time) {
+      if (document.hidden || reducedMotion.matches) { raf = 0; return; }
+      const delta = lastTime ? Math.min((time - lastTime) / 1000, 0.04) : 0;
+      lastTime = time;
+      for (const f of flakes) {
+        f.y += f.speed * delta;
+        f.x += Math.sin(time / 1500 + f.phase) * f.drift * delta;
+        if (f.y > height + 8) Object.assign(f, makeFlake(false), { x: random(0, width) });
+        if (f.x < -5) f.x = width + 5;
+        if (f.x > width + 5) f.x = -5;
+      }
+      draw();
+      raf = requestAnimationFrame(tick);
+    }
+    function start() {
+      if (!reducedMotion.matches && !document.hidden && !raf) {
+        lastTime = 0;
+        raf = requestAnimationFrame(tick);
+      } else if (reducedMotion.matches) {
+        draw();
+      }
+    }
+    function stop() {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+    }
+    resize();
+    start();
+    window.addEventListener('resize', resize, { passive: true });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop(); else start();
+    });
+    if (reducedMotion.addEventListener) reducedMotion.addEventListener('change', () => {
+      stop();
+      if (reducedMotion.matches) draw(); else start();
+    });
+  })();
+
+</script>
+</body>
+</html>
